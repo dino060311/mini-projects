@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>식당 주문 시스템</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-msg" id="modalMsg"></div>
+        <div class="modal-btns">
+          <button id="modalCancel">취소</button>
+          <button class="modal-ok" id="modalOk">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-page="order">주문 접수</button>
+      <button class="tab" data-page="settle">하루 마감 정산</button>
+    </div>
+
+    <div id="page-order" class="page active">
+      <div class="wrap">
+        <div class="panel">
+          <span class="ptitle">메뉴 선택</span>
+
+          <div class="mcard">
+            <span class="mcard-title">짜장면</span>
+            <div class="mcard-rows">
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">일반</span
+                  ><span class="mrow-price">7,000원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="jja_n" data-delta="-1">
+                    -
+                  </button>
+                  <span class="qnum z" id="q-jja_n">0</span>
+                  <button class="qbtn" data-id="jja_n" data-delta="1">+</button>
+                </div>
+              </div>
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">곱빼기</span
+                  ><span class="mrow-price">8,000원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="jja_l" data-delta="-1">
+                    -
+                  </button>
+                  <span class="qnum z" id="q-jja_l">0</span>
+                  <button class="qbtn" data-id="jja_l" data-delta="1">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <span class="mcard-title">짬뽕</span>
+            <div class="mcard-rows">
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">일반</span
+                  ><span class="mrow-price">8,000원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="jjam_n" data-delta="-1">
+                    -
+                  </button>
+                  <span class="qnum z" id="q-jjam_n">0</span>
+                  <button class="qbtn" data-id="jjam_n" data-delta="1">
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">곱빼기</span
+                  ><span class="mrow-price">9,000원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="jjam_l" data-delta="-1">
+                    -
+                  </button>
+                  <span class="qnum z" id="q-jjam_l">0</span>
+                  <button class="qbtn" data-id="jjam_l" data-delta="1">
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <span class="mcard-title">우동</span>
+            <div class="mcard-rows">
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">일반</span
+                  ><span class="mrow-price">7,500원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="ud_n" data-delta="-1">-</button>
+                  <span class="qnum z" id="q-ud_n">0</span>
+                  <button class="qbtn" data-id="ud_n" data-delta="1">+</button>
+                </div>
+              </div>
+              <div class="mrow">
+                <div class="mrow-label">
+                  <span class="mrow-name">곱빼기</span
+                  ><span class="mrow-price">8,500원</span>
+                </div>
+                <div class="qctrl">
+                  <button class="qbtn" data-id="ud_l" data-delta="-1">-</button>
+                  <span class="qnum z" id="q-ud_l">0</span>
+                  <button class="qbtn" data-id="ud_l" data-delta="1">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sumbox" id="sumbox">
+            메뉴를 선택하면 요약이 표시됩니다.
+          </div>
+          <div class="totalrow">
+            <span class="totallabel">이번 주문 금액</span>
+            <span class="totalamt" id="curTotal">0원</span>
+          </div>
+          <button class="btn btnp" id="sbtn" disabled>주문 접수</button>
+          <button class="btn" id="resetBtn">선택 초기화</button>
+        </div>
+
+        <div class="panel">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <span class="ptitle">오늘의 주문</span>
+            <span class="badge" id="cbadge">0건</span>
+          </div>
+          <div class="olist" id="olist">
+            <p class="empty">아직 주문이 없습니다</p>
+          </div>
+          <hr class="divider" />
+          <div class="srow">
+            <span style="color: #999">유효 주문</span
+            ><span class="sval" id="tord">0건</span>
+          </div>
+          <div class="srow">
+            <span style="color: #999">총 그릇</span
+            ><span class="sval" id="tbowl">0개</span>
+          </div>
+          <div class="daytotal">
+            <span class="daytotal-label">오늘 총 매출</span>
+            <span class="daytotal-amt" id="dayTotal">0원</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-settle" class="page">
+      <div class="wrap">
+        <div class="panel full">
+          <div class="close-banner">
+            <span class="close-date" id="closeDate"></span>
+            <span class="close-title">오늘 하루 수고하셨습니다 🍜</span>
+            <span class="close-amt" id="closeSales">0원</span>
+            <span class="close-sub" id="closeSub">유효 주문 0건 · 0그릇</span>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="ptitle">매출 요약</span>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span class="stat-label">총 매출</span
+              ><span class="stat-val" id="s-sales">0원</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">유효 주문</span
+              ><span class="stat-val" id="s-orders">0건</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">총 그릇</span
+              ><span class="stat-val" id="s-bowls">0개</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">취소 건수</span
+              ><span class="stat-val" id="s-cancel" style="color: #d85a30"
+                >0건</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="ptitle">메뉴별 판매량</span>
+          <div id="menuStats"><p class="empty">주문 데이터가 없습니다</p></div>
+        </div>
+        <div class="panel full">
+          <button class="btn btndanger" id="closeDayBtn">
+            오늘 마감 및 초기화
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
