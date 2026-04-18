@@ -349,3 +349,76 @@ function speakTTS(text) {
   utterance.lang = "ko-KR"; // 한국어로 설정
   window.speechSynthesis.speak(utterance);
 }
+
+// 1. 음성 인식 설정
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+
+recognition.lang = "ko-KR"; // 한국어 설정
+recognition.continuous = true; // 계속 듣기
+recognition.interimResults = true; // 중간 결과 확인
+
+// 키워드 설정
+const addressKeywords = ["옆", "상가", "집", "빌라", "동", "호"];
+let currentDetectedAddress = "";
+
+// 2. 음성 인식 시작 함수 (버튼 등에 연결)
+function startListening() {
+  recognition.start();
+  showToast("🎤 음성 인식을 시작합니다...");
+}
+
+// 3. 음성 인식 결과 처리
+recognition.onresult = function (event) {
+  let text = event.results[event.results.length - 1][0].transcript;
+  console.log("인식된 말:", text);
+
+  // [주소 인식 로직]
+  // 말 속에 '집', '상가' 같은 단어가 있으면 주소로 저장
+  let words = text.split(" ");
+  words.forEach((word) => {
+    addressKeywords.forEach((key) => {
+      if (word.includes(key)) {
+        currentDetectedAddress = word;
+        showToast("📍 주소 인식: " + currentDetectedAddress);
+      }
+    });
+  });
+
+  // [메뉴 및 수량 인식 로직]
+  if (text.includes("짜장")) {
+    let menu = text.includes("곱빼기") ? menus[1] : menus[0];
+    updateVoiceQty(menu.id);
+  }
+  if (text.includes("짬뽕")) {
+    let menu = text.includes("곱빼기") ? menus[3] : menus[2];
+    updateVoiceQty(menu.id);
+  }
+  if (text.includes("우동")) {
+    let menu = text.includes("곱빼기") ? menus[5] : menus[4];
+    updateVoiceQty(menu.id);
+  }
+
+  // [주문 확정 키워드]
+  if (text.includes("주문") || text.includes("접수")) {
+    if (document.getElementById("sbtn").disabled === false) {
+      // 주소가 있다면 주소와 함께 주문 접수 (나중에 이 부분에 주소 출력 로직 추가)
+      document.getElementById("sbtn").click();
+      speakTTS(
+        "주문을 접수합니다. 배달지는 " + currentDetectedAddress + " 입니다.",
+      );
+      currentDetectedAddress = ""; // 주소 초기화
+    }
+  }
+};
+
+// 음성으로 수량 올리는 유틸리티
+function updateVoiceQty(id) {
+  var m = menus.find((item) => item.id === id);
+  m.qty += 1;
+  document.getElementById("q-" + id).textContent = m.qty;
+  document.getElementById("q-" + id).className = "qnum";
+  updateSum();
+  speakTTS(m.name + " 하나 추가했습니다.");
+}
