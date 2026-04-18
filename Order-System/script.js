@@ -107,6 +107,7 @@ document.getElementById("olist").addEventListener("click", function (e) {
     o.cancelled = true;
     renderOrders();
     showToast("주문이 취소되었습니다.");
+    speakTTS("주문이 취소되었습니다.");
   });
 });
 
@@ -138,6 +139,7 @@ document.getElementById("sbtn").addEventListener("click", function () {
   renderOrders();
   resetQty();
   showToast("주문이 접수되었습니다.");
+  speakTTS("주문이 접수되었습니다.");
 });
 
 /* 선택 초기화 버튼 클릭 */
@@ -340,3 +342,10 @@ function renderSettle() {
 
 // 초기 로딩 시 날짜 표시
 document.getElementById("closeDate").textContent = today();
+
+// 글자를 읽어주는 함수입니다.
+function speakTTS(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ko-KR"; // 한국어로 설정
+  window.speechSynthesis.speak(utterance);
+}
