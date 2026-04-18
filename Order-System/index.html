@@ -26,9 +26,55 @@
     <div class="tabs">
       <button class="tab active" data-page="order">주문 접수</button>
       <button class="tab" data-page="settle">하루 마감 정산</button>
-      <button class="btn" onclick="startListening()" style="background: #eaf3de; color: #3b6d11; margin-bottom: 10px;">
-    🎤 음성 주문 듣기 시작
-</button>
+      <button
+        class="btn"
+        onclick="startListening()"
+        style="background: #eaf3de; color: #3b6d11; margin-bottom: 10px"
+      >
+        <div
+          id="voiceStatus"
+          style="
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #3b6d11;
+            margin-bottom: 10px;
+          "
+        >
+          <div
+            id="statusDot"
+            style="
+              width: 12px;
+              height: 12px;
+              background: red;
+              border-radius: 50%;
+              animation: blink 1s infinite;
+            "
+          ></div>
+          <span id="statusText" style="font-weight: bold; color: #3b6d11"
+            >말씀하세요! 듣고 있어요...</span
+          >
+        </div>
+
+        <style>
+          @keyframes blink {
+            0% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.3;
+            }
+            100% {
+              opacity: 1;
+            }
+          }
+        </style>
+        🎤 음성 주문 듣기 시작
+      </button>
     </div>
 
     <div id="page-order" class="page active">

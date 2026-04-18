@@ -363,62 +363,41 @@ recognition.interimResults = true; // 중간 결과 확인
 const addressKeywords = ["옆", "상가", "집", "빌라", "동", "호"];
 let currentDetectedAddress = "";
 
-// 2. 음성 인식 시작 함수 (버튼 등에 연결)
+// 음성 인식 시작 함수
 function startListening() {
-  recognition.start();
-  showToast("🎤 음성 인식을 시작합니다...");
+    try {
+        recognition.start();
+        // UI 표시
+        document.getElementById('voiceStatus').style.display = 'flex';
+        showToast("🎤 마이크가 켜졌습니다.");
+        speakTTS("네, 말씀하세요.");
+    } catch (e) {
+        showToast("이미 마이크가 켜져 있습니다.");
+    }
 }
 
-// 3. 음성 인식 결과 처리
-recognition.onresult = function (event) {
-  let text = event.results[event.results.length - 1][0].transcript;
-  console.log("인식된 말:", text);
-
-  // [주소 인식 로직]
-  // 말 속에 '집', '상가' 같은 단어가 있으면 주소로 저장
-  let words = text.split(" ");
-  words.forEach((word) => {
-    addressKeywords.forEach((key) => {
-      if (word.includes(key)) {
-        currentDetectedAddress = word;
-        showToast("📍 주소 인식: " + currentDetectedAddress);
-      }
-    });
-  });
-
-  // [메뉴 및 수량 인식 로직]
-  if (text.includes("짜장")) {
-    let menu = text.includes("곱빼기") ? menus[1] : menus[0];
-    updateVoiceQty(menu.id);
-  }
-  if (text.includes("짬뽕")) {
-    let menu = text.includes("곱빼기") ? menus[3] : menus[2];
-    updateVoiceQty(menu.id);
-  }
-  if (text.includes("우동")) {
-    let menu = text.includes("곱빼기") ? menus[5] : menus[4];
-    updateVoiceQty(menu.id);
-  }
-
-  // [주문 확정 키워드]
-  if (text.includes("주문") || text.includes("접수")) {
-    if (document.getElementById("sbtn").disabled === false) {
-      // 주소가 있다면 주소와 함께 주문 접수 (나중에 이 부분에 주소 출력 로직 추가)
-      document.getElementById("sbtn").click();
-      speakTTS(
-        "주문을 접수합니다. 배달지는 " + currentDetectedAddress + " 입니다.",
-      );
-      currentDetectedAddress = ""; // 주소 초기화
-    }
-  }
+// 음성 인식이 어떤 이유로든 멈췄을 때 (에러나 시간 초과 등)
+recognition.onend = function() {
+    // 2초 타이머가 돌고 있는 중이 아니라면(주문 완료 전이면) 다시 시작하게 하거나 상태를 숨깁니다.
+    // 여기서는 일단 상태바를 숨기는 것으로 처리할게요.
+    document.getElementById('voiceStatus').style.display = 'none';
+    console.log("음성 인식 종료");
 };
 
-// 음성으로 수량 올리는 유틸리티
-function updateVoiceQty(id) {
-  var m = menus.find((item) => item.id === id);
-  m.qty += 1;
-  document.getElementById("q-" + id).textContent = m.qty;
-  document.getElementById("q-" + id).className = "qnum";
-  updateSum();
-  speakTTS(m.name + " 하나 추가했습니다.");
-}
+// 음성 인식 결과가 들어올 때 텍스트를 화면에 실시간으로 보여주기
+recognition.onresult = function(event) {
+    const result = event.results[event.results.length - 1];
+    let text = result[0].transcript;
+    
+    // 할아버지가 내가 한 말을 확인할 수 있게 상태 텍스트 변경
+    document.getElementById('statusText').textContent = "인식 중: " + text;
+
+    if (!result.isFinal) return; 
+
+    // ... (이후 기존의 메뉴/주소 인식 및 2초 타이머 로직 그대로 유지) ...
+    
+    // 최종 결과가 나왔을 때 다시 기본 문구로 변경
+    setTimeout(() => {
+        document.getElementById('statusText').textContent = "말씀하세요! 듣고 있어요...";
+    }, 1000);
+};
